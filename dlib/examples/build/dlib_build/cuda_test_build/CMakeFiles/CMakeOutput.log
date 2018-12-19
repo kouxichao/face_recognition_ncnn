@@ -1,0 +1,28 @@
+Determining if the include file pthread.h exists passed with the following output:
+Change Dir: /home/xichao/dlib-19.16/examples/build/dlib_build/cuda_test_build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_570db/fast"
+/usr/bin/make -f CMakeFiles/cmTC_570db.dir/build.make CMakeFiles/cmTC_570db.dir/build
+make[1]: Entering directory '/home/xichao/dlib-19.16/examples/build/dlib_build/cuda_test_build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_570db.dir/CheckIncludeFile.c.o
+/usr/bin/cc   -fPIC    -o CMakeFiles/cmTC_570db.dir/CheckIncludeFile.c.o   -c /home/xichao/dlib-19.16/examples/build/dlib_build/cuda_test_build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_570db
+/home/xichao/miniconda3/bin/cmake -E cmake_link_script CMakeFiles/cmTC_570db.dir/link.txt --verbose=1
+/usr/bin/cc -fPIC     -rdynamic CMakeFiles/cmTC_570db.dir/CheckIncludeFile.c.o  -o cmTC_570db 
+make[1]: Leaving directory '/home/xichao/dlib-19.16/examples/build/dlib_build/cuda_test_build/CMakeFiles/CMakeTmp'
+
+
+Determining if the function pthread_create exists in the pthread passed with the following output:
+Change Dir: /home/xichao/dlib-19.16/examples/build/dlib_build/cuda_test_build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_aa70d/fast"
+/usr/bin/make -f CMakeFiles/cmTC_aa70d.dir/build.make CMakeFiles/cmTC_aa70d.dir/build
+make[1]: Entering directory '/home/xichao/dlib-19.16/examples/build/dlib_build/cuda_test_build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_aa70d.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_aa70d.dir/CheckFunctionExists.c.o   -c /home/xichao/miniconda3/share/cmake-3.12/Modules/CheckFunctionExists.c
+Linking C executable cmTC_aa70d
+/home/xichao/miniconda3/bin/cmake -E cmake_link_script CMakeFiles/cmTC_aa70d.dir/link.txt --verbose=1
+/usr/bin/cc -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_aa70d.dir/CheckFunctionExists.c.o  -o cmTC_aa70d -lpthread 
+make[1]: Leaving directory '/home/xichao/dlib-19.16/examples/build/dlib_build/cuda_test_build/CMakeFiles/CMakeTmp'
+
+

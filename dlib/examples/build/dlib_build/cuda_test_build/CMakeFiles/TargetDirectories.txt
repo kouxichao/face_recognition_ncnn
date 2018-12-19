@@ -1,0 +1,3 @@
+/home/xichao/dlib-19.16/examples/build/dlib_build/cuda_test_build/CMakeFiles/rebuild_cache.dir
+/home/xichao/dlib-19.16/examples/build/dlib_build/cuda_test_build/CMakeFiles/cuda_test.dir
+/home/xichao/dlib-19.16/examples/build/dlib_build/cuda_test_build/CMakeFiles/edit_cache.dir
