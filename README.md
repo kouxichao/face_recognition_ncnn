@@ -1,6 +1,7 @@
 # face recognition using ncnn framework
 
 编译:
+```
 make -DJPG_DEMO [-DDEBUG] //选项-DDEBUG可选，会输出相似值等信息
 该命令生成detect_face，evaluate两个可执行文件。
 
