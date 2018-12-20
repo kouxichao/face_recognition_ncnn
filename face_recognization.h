@@ -40,6 +40,7 @@ typedef struct
 {
     int index; //边界框索引
     float threshold; // 相似度阈值，相似度超过该值认为不能认出该人脸
+    int k;
 }DKSFaceRecognizationParam;
 
 typedef struct

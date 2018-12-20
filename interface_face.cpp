@@ -83,7 +83,7 @@ int knn(std::vector< std::pair<int, float> >& re, int k, float threshold)
             }
             // printf("(ID:%d)__ballot:%d\n", vote[j].first, vote[j].second);
         } 
-#if debug  
+#if DEBUG  
         printf("results:\n(ID:%d)__ballot:%d\n", vote[max].first, vote[max].second);
 #endif
         return vote[max].first;
@@ -135,8 +135,8 @@ int DKFaceRegisterProcess(char* rgbfilename, int iWidth, int iHeight, DKSMultiDe
 
     //（unsigned char*）2（dlib::array2d<dlib::rgb_pixel>）  
     dlib::image_view<dlib::array2d<dlib::rgb_pixel>> imga(img);
-
-/*  rgbrgbrgb.....
+/*
+// rgb_meta
     for(int r = 0; r < iHeight; r++) 
     {
         const unsigned char* v = rgbData + r * iWidth * 3;
@@ -150,6 +150,7 @@ int DKFaceRegisterProcess(char* rgbfilename, int iWidth, int iHeight, DKSMultiDe
         }
     }
 */
+// rgb_panel
     const unsigned char* channel_r = rgbData;
     const unsigned char* channel_g = rgbData + iHeight * iWidth;
     const unsigned char* channel_b = rgbData + iHeight * iWidth * 2 ;
@@ -164,6 +165,7 @@ int DKFaceRegisterProcess(char* rgbfilename, int iWidth, int iHeight, DKSMultiDe
             assign_pixel( imga[r][c], p );            
         }
     }
+
 #endif  
 
 #ifdef JPG_DEMO
@@ -179,7 +181,7 @@ int DKFaceRegisterProcess(char* rgbfilename, int iWidth, int iHeight, DKSMultiDe
     int x_right = box.x2 > box.x3 ? box.x2 : box.x3;
     y_top =  y_top > 0 ?  y_top : 0;
     x_left = x_left > 0 ? x_left : 0;
-
+    
 #ifdef JPG_DEMO
     y_bottom = y_bottom < img.nr() ? y_bottom : img.nr(); 
     x_right = x_right < img.nc() ? x_right : img.nc(); 
@@ -187,7 +189,7 @@ int DKFaceRegisterProcess(char* rgbfilename, int iWidth, int iHeight, DKSMultiDe
     y_bottom = y_bottom < iHeight ? y_bottom : iHeight; 
     x_right = x_right < iWidth ? x_right : iWidth; 
 #endif
-
+  
     dlib::rectangle det(x_left, y_top, x_right, y_bottom);
     dlib::shape_predictor sp;
     dlib::deserialize("shape_predictor_5_face_landmarks.dat") >> sp;
@@ -244,7 +246,7 @@ void DKFaceRegisterEnd(int flag, int count)
             exit(1);
         }      
 
-        int rid = 0, numfea = 0;
+        int rid, numfea;
         if( sqlite3_step(stat) == SQLITE_ROW ){
             rid = sqlite3_column_int(stat, 0);
             numfea = sqlite3_column_int(stat, 1);
@@ -307,7 +309,10 @@ void DKFaceRegisterEnd(int flag, int count)
 	    if(registernum >= DKMINFACEREGISTERIMGNUM)
             sqlite3_close(facefeatures); 
         else
+        {
+            sqlite3_close(facefeatures); 
             fprintf(stderr, "One person needs to register at least %d facial images\n", DKMINFACEREGISTERIMGNUM);
+        }
     }
 
 }
@@ -352,6 +357,8 @@ int DKFaceRecognizationProcess(char* rgbfilename, int iWidth, int iHeight, DKSMu
 
     //（unsigned char*）2（dlib::array2d<dlib::rgb_pixel>）  
     dlib::image_view<dlib::array2d<dlib::rgb_pixel>> imga(img);
+/*
+// rgb_meta
     for(int r = 0; r < iHeight; r++) 
     {
         const unsigned char* v = rgbData + r * iWidth * 3;
@@ -364,7 +371,23 @@ int DKFaceRecognizationProcess(char* rgbfilename, int iWidth, int iHeight, DKSMu
             assign_pixel( imga[r][c], p );            
         }
     }
-#endif
+*/
+// rgb_panel
+    const unsigned char* channel_r = rgbData;
+    const unsigned char* channel_g = rgbData + iHeight * iWidth;
+    const unsigned char* channel_b = rgbData + iHeight * iWidth * 2 ;
+    for(int r = 0; r < iHeight; r++) 
+    {
+        for(int c = 0; c < iWidth; c++)
+        {
+            dlib::rgb_pixel p;
+            p.red = channel_r[r * iWidth + c];
+            p.green = channel_g[r * iWidth + c];
+            p.blue = channel_b[r * iWidth + c];
+            assign_pixel( imga[r][c], p );            
+        }
+    }
+ #endif
 
 #ifdef JPG_DEMO
     //脸部对齐
@@ -387,11 +410,10 @@ int DKFaceRecognizationProcess(char* rgbfilename, int iWidth, int iHeight, DKSMu
     y_bottom = y_bottom < iHeight ? y_bottom : iHeight; 
     x_right = x_right < iWidth ? x_right : iWidth; 
 #endif
-/*
-#ifdef debug
-    fprintf(stderr, "get_pos:%d_%d_%d_%d\n", x_right, x_left, y_top, y_bottom);
+    
+#if DEBUG   
+    clock_t start = clock();
 #endif
-*/
     dlib::rectangle det(x_left, y_top, x_right, y_bottom);
     dlib::shape_predictor sp;
     dlib::deserialize("shape_predictor_5_face_landmarks.dat") >> sp;
@@ -399,13 +421,17 @@ int DKFaceRecognizationProcess(char* rgbfilename, int iWidth, int iHeight, DKSMu
     dlib::full_object_detection shape = sp(img, det);
     dlib::extract_image_chip(img, get_face_chip_details(shape, 150, 0.25), face_chips);
 
+#if DEBUG       
+    clock_t finsh = clock();
+    fprintf(stderr, "face alignment cost %d ms \n", (finsh-start)/1000);
+#endif  
     
     int col = (int)face_chips.nc();
     int row = (int)face_chips.nr();
 
     ncnn::Mat in = ncnn::Mat::from_pixels_resize((unsigned char*)(&face_chips[0][0]), ncnn::Mat::PIXEL_RGB, col, row, 112, 112);
-#if debug   
-    clock_t start = clock();
+#if DEBUG   
+    start = clock();
 #endif
     ncnn::Net mobilefacenet;
     mobilefacenet.load_param("mobilefacenet.param");
@@ -415,27 +441,26 @@ int DKFaceRecognizationProcess(char* rgbfilename, int iWidth, int iHeight, DKSMu
     ex.input("data", in);
     ex.extract("fc1", fc);
     normalize(fc);
-#if debug       
-    clock_t finsh = clock();
-    fprintf(stderr, "get_feature cost %d ms\n", (finsh-start)/1000);
-#endif
-        //获取行数
+#if DEBUG       
+    finsh = clock();
+    fprintf(stderr, "ncnn cost %d ms\n", (finsh-start)/1000);
+#endif  
+     //获取行数
     sqlite3_stmt* stat;
-    int rc = sqlite3_prepare_v2(facefeatures, "SELECT max(rowid),NUMFEA FROM FEATURES", -1, &stat, NULL);
+    int rc = sqlite3_prepare_v2(facefeatures, "SELECT max(rowid) FROM FEATURES", -1, &stat, NULL);
     if(rc!=SQLITE_OK) {
         fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(facefeatures));
         exit(1);
     }      
 
-    int rows = 0, numfea = 0;
+    int rows;
     if( sqlite3_step(stat) == SQLITE_ROW ){
         rows = sqlite3_column_int(stat, 0);
-        numfea = sqlite3_column_int(stat, 1);
     } 
     sqlite3_finalize(stat);
 
     //读取数据库中脸部特征数据
-#if debug   
+#if DEBUG   
     start = clock();
 #endif  
     int i=0;
@@ -451,12 +476,25 @@ int DKFaceRecognizationProcess(char* rgbfilename, int iWidth, int iHeight, DKSMu
             return -1;
         }
         int blob_length = sqlite3_blob_bytes(blob);
-#if debug   
-        fprintf(stderr, "numfea_%d\n", numfea);
-#endif    
+#if DEBUG
+    	sqlite3_stmt* stat;
+    	int rc = sqlite3_prepare_v2(facefeatures, "SELECT NUMFEA FROM FEATURES WHERE (rowid)=(?)", -1, &stat, NULL);
+        sqlite3_bind_int(stat,1,i+1);
+    	if(rc!=SQLITE_OK) {
+            fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(facefeatures));
+       	    exit(1);
+    	}      
+
+    	int numfea = 0;
+    	if( sqlite3_step(stat) == SQLITE_ROW ){
+            numfea = sqlite3_column_int(stat, 0);
+    	} 
+    	sqlite3_finalize(stat);   
+        fprintf(stderr, "num_features:%d\n", numfea);
+#endif 
         float buf[128] = {0.f};
         int offset = 0;
-        while (offset < numfea * 512)
+        while (offset < blob_length)
         {
             int size = blob_length - offset;
             if (size > 128*4) size = 128*4;
@@ -469,7 +507,7 @@ int DKFaceRecognizationProcess(char* rgbfilename, int iWidth, int iHeight, DKSMu
         
             offset += size;
             similarity = dot((float*)fc.data, buf);
-#if debug   
+#if DEBUG   
             fprintf(stderr, "%d_similarity:%f\n",i, similarity);
 #endif
             results.push_back(std::make_pair(i, similarity));
@@ -478,8 +516,8 @@ int DKFaceRecognizationProcess(char* rgbfilename, int iWidth, int iHeight, DKSMu
     }
     
     int ID;
-    ID = knn(results, 5, param.threshold);
-#if debug   
+    ID = knn(results, param.k, param.threshold);
+#if DEBUG   
     finsh = clock();
     fprintf(stderr, "knn cost %d ms\n", (finsh - start)/1000);
 #endif   

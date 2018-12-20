@@ -23,7 +23,8 @@ int main(int argc, char* argv[])
     rgp.index = 0;
     DKSFaceRecognizationParam rcp;
     rcp.index = 0;
-    rcp.threshold = 0.3;
+    rcp.threshold = 0.4;
+    rcp.k = 3;
     char pre_name[50] = {};
 
     //注册
@@ -107,13 +108,13 @@ int main(int argc, char* argv[])
         {
 
             if((fscanf(fp, "%s %s %d,%d,%d,%d", name, idx, &right, &left, &bottom, &top)) == EOF)
-	        {
-		        fprintf(stderr, "fscanf end(error)\n");
+	    {
+		fprintf(stderr, "fscanf end(error)\n");
                 break;
             }
 
 //            fprintf(stderr, "name : %s\n", name);
-	        if(strstr(name, "test") != NULL && strcmp(name, "xiena_test") == 0)
+	    if(strstr(name, "test") != NULL)// && strcmp(name, "xiena_test") == 0)
             {
 //                fprintf(stderr, "ori_pos:%d_%d_%d_%d\n", right, left, top, bottom);
 
@@ -138,15 +139,15 @@ int main(int argc, char* argv[])
                     acc++;
                 num++;
             }
-	    }
+	}
 
        	DKFaceRecognizationEnd();
         fclose(fp_idx_name);
-                        printf("num:%d \t acc:%d \n", num, acc);
+        printf("num:%f \t acc:%f \n", num, acc);
 
         float accuracy = acc / num;
-        fprintf(stderr, "accuracy: %.2f%%\n", accuracy);
-	}
+        fprintf(stderr, "accuracy: %.2f%%\n", accuracy * 100);
+    }
 
     fclose(fp);
     return 0;
