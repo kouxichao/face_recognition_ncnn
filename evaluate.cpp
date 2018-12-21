@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
     rgp.index = 0;
     DKSFaceRecognizationParam rcp;
     rcp.index = 0;
-    rcp.threshold = 0.4;
+    rcp.threshold = 0.3;
     rcp.k = 3;
     char pre_name[50] = {};
 
@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
 
             if((fscanf(fp, "%s %s %d,%d,%d,%d", name, idx, &right, &left, &bottom, &top)) == EOF)
 	    {
-		fprintf(stderr, "fscanf end(error)\n");
+//		fprintf(stderr, "fscanf end(error)\n");
                 break;
             }
 
@@ -130,23 +130,29 @@ int main(int argc, char* argv[])
                 box[0].box = {left,top,right,top,right,bottom,left,bottom};
                 boxes.num = 1;
                 boxes.boxes[0] = box[0];
-//                printf("PATH: %s\n", rgbfilename.data()); 
+//              printf("PATH: %s\n", rgbfilename.data()); 
 
-        	    id = DKFaceRecognizationProcess((char*)rgbfilename.data(), 100, 100, boxes, rcp);//示例中没有用到100,100两个参数。
-        	    printf("image:%s \t gt_name:%s \t pre_name(ID):%s_(%d)\n", \
-                (std::string(name) + "_" + idx).data(), rea_name.data(), idx_name[id], id);
+		//示例中没有用到100,100两个参数。
+        	id = DKFaceRecognizationProcess((char*)rgbfilename.data(), 100, 100, boxes, rcp);
                 if((strcmp(rea_name.data(), idx_name[id])) == 0)
-                    acc++;
+		{
+		    acc++;
+        	    printf("image:%s \t gt_name:%s \t pre_name(ID):%s_(%d)\n", \
+                    (std::string(name) + "_" + idx).data(), rea_name.data(), idx_name[id], id);
+		}
+                else
+		{
+        	    printf("image:%s \t gt_name:%s \t pre_name(ID):%s_(%d)\n", \
+                    (std::string(name) + "_" + idx).data(), rea_name.data(), "unknown", id);		
+  		}    
                 num++;
             }
 	}
 
        	DKFaceRecognizationEnd();
         fclose(fp_idx_name);
-        printf("num:%f \t acc:%f \n", num, acc);
-
         float accuracy = acc / num;
-        fprintf(stderr, "accuracy: %.2f%%\n", accuracy * 100);
+        printf("num:%f \t acc:%f \t accuracy: %.2f%%\n", num, acc, accuracy * 100);
     }
 
     fclose(fp);
